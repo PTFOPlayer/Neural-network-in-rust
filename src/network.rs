@@ -1,27 +1,19 @@
-use std::f32::consts::E;
+use std::{
+    fs::{self, File},
+    io::{self, Write},
+};
 
-use crate::{error::NetworkError, matrix::Matrix};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug)]
-pub struct Activation {
-    pub fx: fn(f32) -> f32,
-    pub fdx: fn(f32) -> f32,
-}
+use crate::{activation::Activation, error::NetworkError, matrix::Matrix};
 
-impl Default for Activation {
-    fn default() -> Self {
-        Self {
-            fx: |x| 1.0 / (1.0 + E.powf(-x)),
-            fdx: |x| x * (1.0 - x),
-        }
-    }
-}
-
+#[derive(Serialize, Deserialize)]
 pub struct Network {
     layers: Vec<usize>,
     weights: Vec<Matrix>,
     biases: Vec<Matrix>,
     data: Vec<Matrix>,
+    #[serde(skip)]
     activation: Activation,
     rate: f32,
 }
@@ -108,5 +100,18 @@ impl Network {
         }
 
         Ok(self)
+    }
+
+    pub fn save_to_file(&self, path: &str) -> Result<(), io::Error> {
+        let data = serde_json::ser::to_string(self)?;
+        let mut file = File::create(path)?;
+        file.write(data.as_bytes())?;
+        file.flush()?;
+
+        Ok(())
+    }
+
+    pub fn read_from_file(path: &str) -> Result<Self, io::Error> {
+        Ok(serde_json::de::from_slice(&fs::read(path)?)?)
     }
 }

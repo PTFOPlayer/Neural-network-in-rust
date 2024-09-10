@@ -1,8 +1,9 @@
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
 use crate::error::NetworkError;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
