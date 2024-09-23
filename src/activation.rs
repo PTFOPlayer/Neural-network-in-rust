@@ -1,11 +1,11 @@
-use std::f32::consts::E;
+use std::f64::consts::E;
 
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Activation {
-    pub fx: fn(f32) -> f32,
-    pub fdx: fn(f32) -> f32,
+    pub fx: fn(f64) -> f64,
+    pub fdx: fn(f64) -> f64,
 }
 
 impl<'de> Deserialize<'de> for Activation {

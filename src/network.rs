@@ -5,7 +5,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{activation::Activation, error::NetworkError, matrix::Matrix};
+use crate::{activation::Activation, error::NetworkError, matrix::Matrix, training_data::TrainingData};
 
 #[derive(Serialize, Deserialize)]
 pub struct Network {
@@ -15,11 +15,11 @@ pub struct Network {
     data: Vec<Matrix>,
     #[serde(skip)]
     activation: Activation,
-    rate: f32,
+    rate: f64,
 }
 
 impl Network {
-    pub fn new(layers: Vec<usize>, activation: Activation, rate: f32) -> Network {
+    pub fn new(layers: Vec<usize>, activation: Activation, rate: f64) -> Network {
         let mut weights = Vec::new();
         let mut biases = Vec::new();
 
@@ -88,14 +88,13 @@ impl Network {
 
     pub fn train(
         mut self,
-        input: Vec<Vec<f32>>,
-        target: Vec<Vec<f32>>,
+        training_data: Vec<TrainingData>,
         epoch: usize,
     ) -> Result<Network, NetworkError> {
         for _ in 1..=epoch {
-            for j in 0..input.len() {
-                let out = self.forward_prop(Matrix::from(input[j].clone()))?;
-                self.back_prop(out, Matrix::from(target[j].clone()))?;
+            for j in 0..training_data.len() {
+                let out = self.forward_prop(Matrix::from(training_data[j].inputs.clone()))?;
+                self.back_prop(out, Matrix::from(training_data[j].target.clone()))?;
             }
         }
 

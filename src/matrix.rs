@@ -7,7 +7,7 @@ use crate::error::NetworkError;
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    pub data: Vec<f32>,
+    pub data: Vec<f64>,
 }
 
 impl Matrix {
@@ -68,11 +68,9 @@ impl Matrix {
 
         for i in 0..self.rows {
             for j in 0..rhs.cols {
-                let mut sum = 0.0;
-                for k in 0..self.cols {
-                    sum += self.data[i * self.cols + k] * rhs.data[k * rhs.cols + j];
-                }
-                data[i * rhs.cols + j] = sum;
+                data[i * rhs.cols + j] = (0..self.cols).map(|k|{
+                    self.data[i * self.cols + k] * rhs.data[k * rhs.cols + j]
+                }).sum();
             }
         }
 
@@ -119,7 +117,7 @@ impl Matrix {
         }
     }
 
-    pub fn map_fn(&mut self, func: impl Fn(f32) -> f32) -> Matrix {
+    pub fn map_fn(&mut self, func: impl Fn(f64) -> f64) -> Matrix {
         Matrix {
             rows: self.rows,
             cols: self.cols,
@@ -128,8 +126,8 @@ impl Matrix {
     }
 }
 
-impl From<Vec<f32>> for Matrix {
-    fn from(data: Vec<f32>) -> Self {
+impl From<Vec<f64>> for Matrix {
+    fn from(data: Vec<f64>) -> Self {
         Matrix {
             rows: data.len(),
             cols: 1,
